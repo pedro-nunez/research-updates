@@ -110,10 +110,13 @@ in the project list and daily entries. An example with optional decoration is al
 Use
 
 ```latex
-\newtopic
+\astbreak
 ```
 
-to start a new topic of discussion when it does not have a project tag.
+to insert a separator, e.g. to start a new topic of discussion when it does not have a project tag.
+
+The `\arxiv` command takes as input the numeric part `YYMM.NNNNN` of the [arXiv identifier](https://info.arxiv.org/help/arxiv_identifier.html)
+of a paper `arXiv:YYMM.NNNNN` and includes a link to that arXiv paper with link text `arXiv:YYMM.NNNNN`.
 
 The color of daily headings is set once in
 `main.tex`:
