@@ -38,17 +38,16 @@ if ! command -v vim >/dev/null 2>&1; then
     exit 1
 fi
 
-date_fields="$(LC_ALL=C date '+%Y-%m|%B %Y|%Y-%m-%d (%A)|%Y-%m-%d')"
-IFS='|' read -r current_month month_title current_date ref_date <<< "$date_fields"
-# TODO: Change to current_month month_title date_title current_date
+date_fields="$(LC_ALL=C date '+%Y-%m|%B %Y|%Y-%m-%d|%Y-%m-%d (%A)')"
+IFS='|' read -r current_month month_title current_date date_title <<< "$date_fields"
 
 printf 'Current month is %s, i.e., %s.\n' "$current_month" "$month_title"
-printf 'Current date: %s.\n' "$current_date"
+printf 'Current date: %s.\n' "$date_title"
 
 month_file="${months_dir}/${current_month}.tex"
 include_line="\\include{months/${current_month}}"
 date_heading="\\dayentry{${current_date}}"
-date_label="\\phantomsection\\label{day:${ref_date}}"
+date_label="\\phantomsection\\label{day:${current_date}}"
 
 tmp=""
 cleanup() {
