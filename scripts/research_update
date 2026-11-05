@@ -63,7 +63,7 @@ mkdir -p "$months_dir"
 
 # Create the monthly file the first time it is used.
 if [[ ! -f "$month_file" ]]; then
-    printf '%s\n\n' "\\chapter{${month_title}}" > "$month_file"
+    printf '%s\n' "\\chapter{${month_title}}" > "$month_file"
 fi
 
 # Include the monthly file in main.tex if necessary.
