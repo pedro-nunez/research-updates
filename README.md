@@ -1,202 +1,151 @@
-# Research Diary
+# Research Updates
 
-A small LaTeX repository template for keeping a chronological research diary.
+A LaTeX repository for chronological research updates, organized by month.
 
-The diary is organized by month. A Bash function, `rd`, takes care of creating the current monthly file, adding today's entry if necessary, and opening it in Vim. The complete diary is compiled from `main.tex`.
+The `research_update` command creates the current monthly file if needed, adds today's heading if needed, and opens the file in Vim.
+The complete document is compiled from `main.tex`.
+
+## Quick start
+
+1. Create a repository from this template and clone it.
+2. Edit the personal details and current-project list in `main.tex`.
+3. Optional: Replace or omit the cover image `images/Grothendieck-Riemann-Roch.jpg`.
+4. Install the command as described below, or run it directly:
+
+   ```bash
+   bash scripts/research_update
+   ```
+
+5. Compile from the repository root:
+
+   ```bash
+   latexmk -pdf main.tex
+   ```
+
+Requirements: Bash, Vim, a TeX installation containing the packages used
+in `main.tex`, Latexmk and Biber.
 
 ## Repository structure
 
 ```text
 research-diary/
+├── .gitignore
+├── README.md
 ├── main.tex
 ├── refs.bib
-├── research-diary.sh
+├── images/
+│   └── Grothendieck-Riemann-Roch.jpg
+├── scripts/
+│   └── research_update
 └── months/
-    ├── 2026-09.tex
-    ├── 2026-10.tex
+    ├── 2026-11.tex
+    ├── 2026-12.tex
     └── ...
 ```
 
-- `main.tex` is the master LaTeX document. It contains the preamble, diary metadata, project list, custom commands, monthly `\include` statements, and bibliography.
-- `refs.bib` is the BibLaTeX bibliography database used by the diary.
-- `research-diary.sh` defines the `rd` Bash function.
-- `months/` contains the diary itself, with one file per month. These files are created automatically by `rd`.
+- `main.tex`: preamble, cover, project list, contents and monthly includes.
+- `refs.bib`: bibliography database.
+- `images/`: cover image and any other figures.
+- `scripts/research_update`: command for starting an update.
+- `months/`: monthly files, created automatically when needed. The filenames above are examples; this folder is initially absent and created automatically by `research_update`.
 
-## Creating a diary from this template
+## Installing the command
 
-Create a new repository from this template and clone it normally. The Bash script determines the repository location automatically, so the clone does not need to live at any particular path.
-
-After cloning, edit the setup section near the beginning of `main.tex`:
-
-```latex
-% Replace these values when setting up the diary.
-\newcommand{\DiaryAuthor}{[Author Name]}
-\newcommand{\DiaryAcademicYear}{[Academic Year]}
-\newcommand{\DiaryTitle}{[Diary Title]}
-```
-
-For example:
-
-```latex
-\newcommand{\DiaryAuthor}{Alice Example}
-\newcommand{\DiaryAcademicYear}{2026--2027}
-\newcommand{\DiaryTitle}{Research Diary}
-```
-
-You should also edit the **Current projects** list on the title page:
-
-```latex
-Current projects:
-\begin{itemize}
-  \item \ptag{p1}:~[Brief description of first project]
-  \item \ptag{p2}:~[Brief description of second project]
-  \item \ptag{p3}:~[Brief description of third project]
-\end{itemize}
-```
-
-The tags (`p1`, `p2`, etc.) are meant to give short identifiers to projects that can then be reused throughout the diary with `\ptag{...}`. Add, remove, or rename projects as appropriate.
-
-The rest of `main.tex` can normally be left unchanged. In particular, do **not** manually add monthly `\include` commands: `rd` manages them automatically below the marker
-
-```latex
-% Monthly files:
-```
-
-You may, of course, customize the LaTeX preamble, theorem environments, formatting, or diary commands if desired.
-
-Add bibliography entries to `refs.bib` in the usual BibTeX/BibLaTeX format. The diary uses `biblatex` with `biber`.
-
-## Enabling the `rd` command
-
-`research-diary.sh` defines a Bash function rather than installing a standalone executable. Source it from your Bash configuration file.
-
-For example, add the following line to `~/.bashrc`:
+From the repository root:
 
 ```bash
-source "/path/to/research-diary/research-diary.sh"
+chmod +x scripts/research_update
+mkdir -p "${HOME}/.local/bin"
+
+ln -s "$(pwd -P)/scripts/research_update" "${HOME}/.local/bin/research_update"
 ```
 
-Then reload the shell configuration:
+Optionally, for a shorter command, replace the previous line of code by:
+
+```
+ln -s "$(pwd -P)/scripts/research_update" "${HOME}/.local/bin/uu"
+```
+
+Ensure `~/.local/bin` is in your `PATH`. If necessary, add this line to
+your shell configuration and run it in your current terminal:
 
 ```bash
-source ~/.bashrc
+export PATH="${HOME}/.local/bin:${PATH}"
 ```
 
-After that, the command
+Check the installation:
 
 ```bash
-rd
+command -v research_update
+command -v uu
 ```
 
-is available from any directory.
+Both commands work from any directory and open the repository to which
+their symlinks point. Keep that repository at the symlink target, or
+recreate the links after moving it.
 
-If you create several independent diaries from this template, source the script only for the diary whose `rd` function you want to use, or rename the function in each copy.
-
-## Using `rd`
-
-Run
+To uninstall:
 
 ```bash
-rd
+rm "${HOME}/.local/bin/research_update" "${HOME}/.local/bin/uu"
 ```
 
-whenever you want to write in the diary.
+## Writing updates
 
-Suppose the date is September 1, 2026. The function will:
+Run `research_update` or `uu`. Repeated runs on the same day do not
+duplicate the daily heading.
 
-1. determine the current month and date;
-2. create `months/2026-09.tex` if it does not already exist, beginning with
-
-   ```latex
-   \chapter{September 2026}
-   ```
-
-3. make sure that `main.tex` contains
-
-   ```latex
-   \include{months/2026-09}
-   ```
-
-4. add today's entry to the monthly file if it has not already been created:
-
-   ```latex
-   \section*{\color{teal}2026-09-01 (Tuesday)}
-   \phantomsection\label{day:2026-09-01}
-   ```
-
-5. open the monthly file in Vim at the end of the file, ready for editing.
-
-Running `rd` more than once on the same day does not create duplicate month includes or duplicate daily headings.
-
-Vim is opened with `months/` as its working directory. This is useful for Vim/LaTeX configurations that look for `main.tex` in the current directory or its parent directory. When Vim exits, your shell remains in the directory from which you originally ran `rd`.
-
-## Writing diary entries
-
-Write ordinary LaTeX directly below the current day's heading.
-
-The template provides two small diary-specific commands.
-
-### Project tags
-
-Use
+Write ordinary LaTeX below the heading. Use:
 
 ```latex
 \ptag{p1}
 ```
 
-to mark which project a note belongs to.
-
-For example:
-
-```latex
-\ptag{p1}
-
-Today I tried to prove...
-```
-
-### Topic changes
-
-Use
+to identify a project, and:
 
 ```latex
 \newtopic
 ```
 
-to insert a visible separator when changing topics within the same day's entry.
+to separate topics.
 
-### Linking to previous days
-
-Every daily heading receives a label of the form
-
-```latex
-day:YYYY-MM-DD
-```
-
-so previous entries can be linked with `hyperref`. For example:
+The color of daily headings is set once in
+`main.tex`:
 
 ```latex
-See \hyperref[day:2026-09-01]{the entry from September 1}.
+\definecolor{DateColor}{RGB}{0,128,128}
 ```
 
-The labels are intended as hyperlink targets rather than numbered `\ref`/`\cref` references.
+Vim opens with `months/` as its working directory. Your shell's working
+directory is unchanged when Vim closes.
 
-## Compiling
+## Numbering and references
 
-Compile `main.tex`, not the individual monthly files.
+Theorem-like environments share a counter that restarts at 1 each month.
+Equations have a separate counter that also restarts each month.
+Printed numbers omit the chapter number.
 
-Since the template uses BibLaTeX with the `biber` backend, a typical manual compilation sequence is
+Use unique LaTeX labels throughout the document. When referring across
+months, mention the date if necessary to distinguish repeated numbers.
+
+Every day receives a label of the form `day:YYYY-MM-DD`:
+
+```latex
+See \hyperref[day:2026-11-04]{the update from November 4}.
+```
+
+These day labels are hyperlink targets rather than numbered references.
+
+## Monthly files and compilation
+
+The `research_update` command manages monthly `\include` statements in `main.tex`.
+Keep the `% Monthly files:` marker and the monthly `\chapter{...}` commands.
+
+Compile `main.tex`, not the individual monthly files:
 
 ```bash
-pdflatex main.tex
-biber main
-pdflatex main.tex
-pdflatex main.tex
+latexmk -pdf main.tex
 ```
 
-If your editor or Vim LaTeX setup already automates compilation and bibliography processing, use that instead.
-
-## Notes
-
-- Monthly files and daily headings are generated automatically; ordinary diary content is never overwritten by `rd`.
-- The `% Monthly files:` marker in `main.tex` is used by the script to determine where new monthly `\include` statements belong. Do not remove it unless you also modify the script.
-- The repository can be moved or cloned to a different location without changing `research-diary.sh`.
+Add bibliography entries to `refs.bib`; the document uses BibLaTeX
+with Biber.
