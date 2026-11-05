@@ -1,115 +1,246 @@
-\documentclass[12pt]{report}
+\documentclass[12pt,a4paper]{report}
 
+% Encoding and language
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[english]{babel}
-\usepackage{geometry}
+\usepackage[british]{babel}
+
+% Mathematics
 \usepackage{mathtools}
 \usepackage{amsthm}
 \usepackage{libertine}
 \usepackage[libertine]{newtxmath}
+\usepackage[mathscr]{euscript}
+
+% General packages
 \usepackage{enumitem}
+\usepackage{comment}
+\usepackage{titlesec}
+
+% Figures
+\usepackage{graphicx}
+\usepackage{float}
+
+% Diagrams
 \usepackage{tikz-cd}
 \usetikzlibrary{decorations.markings}
-\usepackage{alertmessage}
-\usepackage{float}
-\usepackage{titlesec}
+
+% Bibliography
 \usepackage[
-  backend=biber,
-  style=alphabetic,
-  maxnames=10,
-  maxalphanames=10]{biblatex}
+    backend=biber,
+    style=alphabetic,
+    maxnames=10,
+    maxalphanames=10]{biblatex}
 \addbibresource{refs.bib}
+
+% Colors
+\usepackage{xcolor}
+\definecolor{CustomBlue}{RGB}{51,51,153}
+\definecolor{DateColor}{RGB}{0,128,128}
+
+% References and links
 \usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=CustomBlue,
+    citecolor=CustomBlue,
+    urlcolor=CustomBlue
+}
 \urlstyle{same}
 \usepackage[noabbrev]{cleveref}
 
-% Replace these values when setting up the diary.
-\newcommand{\DiaryAuthor}{[Author Name]}
-\newcommand{\DiaryAcademicYear}{[Academic Year]}
-\newcommand{\DiaryTitle}{[Diary Title]}
-
-\theoremstyle{definition}
-\newtheorem{theorem}{Theorem}
+% Theorem-like environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\renewcommand{\thetheorem}{\arabic{theorem}}
+\renewcommand{\theHtheorem}{\theHchapter.\arabic{theorem}}
+\newtheorem*{theorem*}{Theorem}
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{fact}[theorem]{Fact}
-\newtheorem{question}[theorem]{Question}
+
+\theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
-\newtheorem{notation}[theorem]{Notation}
-\newtheorem{example}[theorem]{Example}
-\newtheorem{remark}[theorem]{Remark}
+\newtheorem{construction}[theorem]{Construction}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{exercise}[theorem]{Exercise}
 \newtheorem{setting}[theorem]{Setting}
 
-\titleformat{\chapter}
-{\normalfont\Huge\bfseries}{}{1em}{}
-\titleformat{\section}
-{\normalfont\small\bfseries}{}{}{}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{question}[theorem]{Question}
 
-\sloppy
-\makeatletter
-\hypersetup{
-  pdfauthor={\DiaryAuthor},
-  pdftitle={\DiaryTitle},
-  colorlinks,
-  linkcolor=[rgb]{0.2,0.2,0.6},
-  citecolor=[rgb]{0.2,0.2,0.6},
-  urlcolor=[rgb]{0.2,0.2,0.6}
+% Alphabetic theorem items with ordinary enumerate indentation
+% Printed labels: (a), (b), ...; references: 1(a), 1(b), ...
+\newlist{theoremitems}{enumerate}{1}
+\setlist[theoremitems,1]{
+    label=(\alph*),
+    ref=\thetheorem(\alph*)
 }
+
+% Equation numbering
+\numberwithin{equation}{chapter}
+\renewcommand{\theequation}{\arabic{equation}}
+\renewcommand{\theHequation}{\theHchapter.\arabic{equation}}
+
+% Cross-reference names
+\crefname{theorem}{theorem}{theorems}
+\Crefname{theorem}{Theorem}{Theorems}
+\crefname{lemma}{lemma}{lemmas}
+\Crefname{lemma}{Lemma}{Lemmas}
+\crefname{proposition}{proposition}{propositions}
+\Crefname{proposition}{Proposition}{Propositions}
+\crefname{corollary}{corollary}{corollaries}
+\Crefname{corollary}{Corollary}{Corollaries}
+\crefname{fact}{fact}{facts}
+\Crefname{fact}{Fact}{Facts}
+\crefname{definition}{definition}{definitions}
+\Crefname{definition}{Definition}{Definitions}
+\crefname{construction}{construction}{constructions}
+\Crefname{construction}{Construction}{Constructions}
+\crefname{conjecture}{conjecture}{conjectures}
+\Crefname{conjecture}{Conjecture}{Conjectures}
+\crefname{exercise}{exercise}{exercises}
+\Crefname{exercise}{Exercise}{Exercises}
+\crefname{setting}{setting}{settings}
+\Crefname{setting}{Setting}{Settings}
+\crefname{remark}{remark}{remarks}
+\Crefname{remark}{Remark}{Remarks}
+\crefname{notation}{notation}{notations}
+\Crefname{notation}{Notation}{Notations}
+\crefname{example}{example}{examples}
+\Crefname{example}{Example}{Examples}
+\crefname{question}{question}{questions}
+\Crefname{question}{Question}{Questions}
+\crefname{theoremitemsi}{item}{items}
+\Crefname{theoremitemsi}{Item}{Items}
+
+% Cover and author details
+\makeatletter
+
+\newcommand{\subtitle}[1]{\gdef\@subtitle{#1}}
+\newcommand{\titlefigure}[1]{\gdef\@titlefigure{#1}}
+\newcommand{\authorinfo}[1]{\gdef\@authorinfo{#1}}
+
+\subtitle{}
+\titlefigure{}
+\authorinfo{}
+
+\renewcommand{\maketitle}{%
+    \begin{titlepage}
+        \normalfont
+        \centering
+        \vspace*{0.08\textheight}
+
+        {\Huge\bfseries \@title\par}
+
+        \ifx\@subtitle\@empty
+        \else
+            \vspace{0.8cm}
+            {\Large \@subtitle\par}
+        \fi
+
+        \vspace{1.5cm}
+        {\Large \@author\par}
+
+        \vfill
+        \ifx\@titlefigure\@empty
+        \else
+            \@titlefigure\par
+            \vfill
+        \fi
+
+        {\large \@date\par}
+        \vspace*{0.05\textheight}
+    \end{titlepage}%
+}
+
+\newcommand{\printauthorinfo}{%
+    \par\noindent
+    \begin{minipage}[b]{\linewidth}
+        \normalfont\footnotesize
+        \setlength{\parindent}{0pt}%
+        \@authorinfo\par
+    \end{minipage}\par
+}
+
 \makeatother
 
-\setlength\parindent{0pt}
+% Monthly and daily headings
+\titleformat{\chapter}
+    {\normalfont\Huge\bfseries}{}{1em}{}
+\titleformat{\section}
+    {\normalfont\small\bfseries}{}{0pt}{}
+\setcounter{tocdepth}{0}
 
-% Diary commands.
+% Research update commands
+\newcommand{\dayentry}[1]{%
+    \section*{\color{DateColor}#1}%
+}
 \newcommand{\ptag}[1]{\vspace{1mm}\textbf{\small[\uppercase{#1}]}}
-% To tag the project currently being talked about.
+% TODO: replace by custom tags for each project
 \newcommand{\newtopic}{%
-  \vspace{-2mm}
-  {\color{teal}
-  \begin{center}
-  --------- --------- ---------
-  \end{center}
-  }
-  \vspace{-2mm}
-  }
-% To change the topic and make this visible.
+    \vspace{-2mm}
+    {\color{DateColor}
+        \begin{center}
+            --------- --------- ---------
+        \end{center}
+    }
+    \vspace{-2mm}
+}
+
+% Personal details: edit these when setting up the project.
+\title{Research Updates}
+\subtitle{2026--2027}
+\author{Example Author}
+\authorinfo{%
+    \hangindent=1em\hangafter=1
+    \textsc{Example Author} \\ Example University\\Department of Mathematics \\ 1 Example Road\\Example City, Country\par
+    {\leftskip=1em\relax\textit{Email address:} \href{mailto:author@example.com}{author@example.com}\par}
+    {\leftskip=1em\relax\textit{Homepage:} \href{https://example.com}{https://example.com}\par}
+}
+\date{Last updated on~\today.}
+\titlefigure{%
+    \includegraphics[
+        width=0.8\textwidth,
+        height=0.4\textheight,
+        keepaspectratio
+    ]{images/Grothendieck-Riemann-Roch.jpg}%
+}
+
+\makeatletter
+\hypersetup{pdftitle={\@title}, pdfauthor={\@author}}
+\makeatother
 
 \begin{document}
 
+\hypersetup{pageanchor=false}
+\maketitle
+
+% Projects information page
 \thispagestyle{empty}
-
-\begin{center}
-    \Huge{\DiaryTitle}
-
-    \huge{\DiaryAcademicYear}
-        
-    \vspace{0.4cm}
-    \large
-    \DiaryAuthor
-       
-    \vspace{0.9cm}
-\end{center}
-
-\vspace{0.9cm}
-Current projects:
+\noindent\textbf{Current projects}
 \begin{itemize}
-  \item \ptag{p1}:~[Brief description of first project]
-  \item \ptag{p2}:~[Brief description of second project]
-  \item \ptag{p3}:~[Brief description of third project]
+    \item \ptag{p1}:~[Brief description of first project]
+    \item \ptag{p2}:~[Brief description of second project]
+    \item \ptag{p3}:~[Brief description of third project]
 \end{itemize}
-\vspace{0.9cm}
-
 \vfill
-\begin{center}
-  (Last updated on~\today.)
-\end{center}
+\printauthorinfo
+\clearpage
 
-\pagestyle{plain}
+\pagenumbering{roman}
+\hypersetup{pageanchor=true}
+\tableofcontents
+\clearpage
+
+\pagenumbering{arabic}
 
 % Monthly files:
 
 \printbibliography
-\vfill
 
 \end{document}
