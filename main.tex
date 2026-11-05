@@ -181,7 +181,11 @@
 \newcommand{\dayentry}[1]{%
     \section*{\color{DateColor}#1}%
 }
-\newcommand{\ptag}[1]{\vspace{1mm}\textbf{\small[\uppercase{#1}]}}
+\newcommand{\ptag}[1]{%
+    \vspace{1mm}%
+    \noindent\textbf{\small[\uppercase{#1}]}%
+    \AddToHookNext{para/begin}{\OmitIndent}%
+}
 \newcommand{\newtopic}{%
     \begin{center}
         \pgfornament[width=0.3\linewidth]{82}
