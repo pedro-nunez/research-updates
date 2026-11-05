@@ -1,110 +1,128 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-rd() {
-  # Function to open and start writing on the research diary, adding the date if necessary.
-  
-  local diary_dir months_dir main_file
+if [[ $# -gt 0 ]]; then
+    if [[ $# -eq 1 && "$1" == --help ]]; then
+        printf '%s\n' \
+            'Usage: research_update' \
+            'Create today’s entry if needed and open the monthly file in Vim.'
+        exit 0
+    fi
+    printf 'research_update: unexpected argument; use --help for usage.\n' >&2
+    exit 1
+fi
 
-  diary_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)" || return 1
-  months_dir="${diary_dir}/months"
-  main_file="${diary_dir}/main.tex"
+# Locate the repository, including when this command is symlinked.
+script_path="${BASH_SOURCE[0]}"
+while [[ -L "$script_path" ]]; do
+    script_dir="$(cd -- "$(dirname "$script_path")" && pwd -P)"
+    link_target="$(readlink "$script_path")"
+    if [[ "$link_target" == /* ]]; then
+        script_path="$link_target"
+    else
+        script_path="${script_dir}/${link_target}"
+    fi
+done
 
-  local current_month month_title current_date ref_date
+repo_dir="$(cd -- "$(dirname "$script_path")/.." && pwd -P)"
+months_dir="${repo_dir}/months"
+main_file="${repo_dir}/main.tex"
 
-  IFS='|' read -r current_month month_title current_date ref_date < <(
-    date '+%Y-%m|%B %Y|%Y-%m-%d (%A)|%Y-%m-%d'
-  )
-
-  echo "Current month is ${current_month}, i.e., ${month_title}."
-  echo "Current date: ${current_date}."
-
-  # ref_date is the current date without day of the week, for cross-referencing.
-  ref_date="$(date -I)"
-
-  local month_file include_line date_heading tmp
-  month_file="${months_dir}/${current_month}.tex"
-  include_line="\\include{months/${current_month}}"
-  date_heading="\\section*{\\color{teal}${current_date}}"
-  date_label="\\phantomsection\\label{day:${ref_date}}"
-
-  # Create months folder unless it already exists, and return from the function with failure status 1 if it is not possible to create the directory for some reason.
-  mkdir -p "$months_dir" || return 1
-
-  # Make sure that main.tex exists.
-  if [[ ! -f "$main_file" ]]; then 
+if [[ ! -f "$main_file" ]]; then
     printf 'Error: main.tex file does not exist: %s\n' "$main_file" >&2
-    return 1
-  fi
+    exit 1
+fi
 
-  # Create month file the first time this month is used.
-  if [[ ! -f "$month_file" ]]; then
-    printf '%s\n\n' "\\chapter{${month_title}}" > "$month_file" || return 1
-  fi
+if ! command -v vim >/dev/null 2>&1; then
+    printf 'Error: vim was not found.\n' >&2
+    exit 1
+fi
 
-  # Include month file in main.tex if necessary.
-  if ! grep -Fxq "$include_line" "$main_file"; then
-    # Edit a temporary file first for safety.
-    tmp="$(mktemp "${main_file}.tmp.XXXXXX")" || return 1
+date_fields="$(LC_ALL=C date '+%Y-%m|%B %Y|%Y-%m-%d (%A)|%Y-%m-%d')"
+IFS='|' read -r current_month month_title current_date ref_date <<< "$date_fields"
+% TODO: Change to current_month month_title date_title current_date
+
+printf 'Current month is %s, i.e., %s.\n' "$current_month" "$month_title"
+printf 'Current date: %s.\n' "$current_date"
+
+month_file="${months_dir}/${current_month}.tex"
+include_line="\\include{months/${current_month}}"
+date_heading="\\dayentry{${current_date}}"
+date_label="\\phantomsection\\label{day:${ref_date}}"
+
+tmp=""
+cleanup() {
+    if [[ -n "$tmp" ]]; then
+        rm -f "$tmp"
+    fi
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+mkdir -p "$months_dir"
+
+# Create the monthly file the first time it is used.
+if [[ ! -f "$month_file" ]]; then
+    printf '%s\n\n' "\\chapter{${month_title}}" > "$month_file"
+fi
+
+# Include the monthly file in main.tex if necessary.
+if ! grep -Fxq "$include_line" "$main_file"; then
+    tmp="$(mktemp "${main_file}.tmp.XXXXXX")"
+    cp -p "$main_file" "$tmp"
 
     INCLUDE_LINE="$include_line" awk '
-      BEGIN {
-        new = ENVIRON["INCLUDE_LINE"]
-      }
-      
-      {
-        lines[NR] = $0
-
-        if ($0 ~ /\\include\{months\//) {
-          last_include = NR
+        BEGIN {
+            new = ENVIRON["INCLUDE_LINE"]
         }
 
-        if ($0 ~ /Monthly files:/ && !monthly_marker) {
-          monthly_marker = NR
-        }
-      }
+        {
+            lines[NR] = $0
 
-      END {
-        target = last_include ? last_include : monthly_marker
+            if ($0 ~ /\\include\{months\//) {
+                last_include = NR
+            }
 
-        for (i = 1; i <= NR; i++) {
-          print lines[i]
-
-          if (target && i == target) {
-            print new
-            inserted = 1
-          }
+            if ($0 ~ /Monthly files:/ && !monthly_marker) {
+                monthly_marker = NR
+            }
         }
 
-        if (!inserted) {
-          print "Error: could not find a place to insert the monthly include." > "/dev/stderr"
-          exit 1
-        }
-      }
-    ' "$main_file" > "$tmp" &&
-    chmod --reference="$main_file" "$tmp" &&
-    mv "$tmp" "$main_file" || {
-      rm -f "$tmp"
-      return 1
-    }
-  fi
+        END {
+            target = last_include ? last_include : monthly_marker
 
-  # Add today's heading if necessary.
-  if ! grep -Fxq "$date_label" "$month_file"; then
+            for (i = 1; i <= NR; i++) {
+                print lines[i]
+
+                if (target && i == target) {
+                    print new
+                    inserted = 1
+                }
+            }
+
+            if (!inserted) {
+                print "Error: could not find a place to insert the monthly include." > "/dev/stderr"
+                exit 1
+            }
+        }
+    ' "$main_file" > "$tmp"
+
+    mv "$tmp" "$main_file"
+    tmp=""
+fi
+
+# Add today's heading if necessary.
+if ! grep -Fxq "$date_label" "$month_file"; then
     {
-      printf '\n'
-      printf '%s\n' "$date_heading"
-      printf '%s\n' "$date_label"
-      printf '\n'
-    } >> "$month_file" || return 1
-  fi
+        printf '\n'
+        printf '%s\n' "$date_heading"
+        printf '%s\n' "$date_label"
+        printf '\n'
+    } >> "$month_file"
+fi
 
-  command -v vim >/dev/null || {
-    printf 'Error: vim was not found.\n' >&2
-    return 1
-  }
-
-  (
-    cd "$months_dir" || exit 1
+(
+    cd "$months_dir"
     vim '+normal! Go' '+startinsert' "${current_month}.tex"
-  )
-}
+)
