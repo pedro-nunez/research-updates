@@ -60,7 +60,7 @@ mkdir -p "${HOME}/.local/bin"
 ln -s "$(pwd -P)/scripts/research_update" "${HOME}/.local/bin/research_update"
 ```
 
-Optionally, for a shorter command, replace the previous line of code by:
+Optionally, also install the shorter command `uu`:
 
 ```
 ln -s "$(pwd -P)/scripts/research_update" "${HOME}/.local/bin/uu"
@@ -87,7 +87,8 @@ recreate the links after moving it.
 To uninstall:
 
 ```bash
-rm "${HOME}/.local/bin/research_update" "${HOME}/.local/bin/uu"
+rm "${HOME}/.local/bin/research_update"
+rm "${HOME}/.local/bin/uu"
 ```
 
 ## Writing updates
@@ -95,19 +96,24 @@ rm "${HOME}/.local/bin/research_update" "${HOME}/.local/bin/uu"
 Run `research_update` or `uu`. Repeated runs on the same day do not
 duplicate the daily heading.
 
-Write ordinary LaTeX below the heading. Use:
+Write ordinary LaTeX below the heading. Use
 
 ```latex
 \ptag{p1}
 ```
 
-to identify a project, and:
+to mark the current topic of discussion, in this case project P1.
+Optional project shortcuts can be configured using the commented examples
+in the preamble. For example, `\newcommand{\myproject}{\ptag{TAG}}` lets you use `\myproject`
+in the project list and daily entries. An example with optional decoration is also included.
+
+Use
 
 ```latex
 \newtopic
 ```
 
-to separate topics.
+to start a new topic of discussion when it does not have a project tag.
 
 The color of daily headings is set once in
 `main.tex`:
