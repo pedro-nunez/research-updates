@@ -155,3 +155,9 @@ latexmk -pdf main.tex
 
 Add bibliography entries to `refs.bib`; the document uses BibLaTeX
 with Biber.
+
+## AI disclaimer
+
+AI's assistance has been used to update the code in this repository.
+Every line of code suggested by AI used in the code of this repository
+was carefully reviewed by a human.
