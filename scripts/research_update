@@ -40,7 +40,7 @@ fi
 
 date_fields="$(LC_ALL=C date '+%Y-%m|%B %Y|%Y-%m-%d (%A)|%Y-%m-%d')"
 IFS='|' read -r current_month month_title current_date ref_date <<< "$date_fields"
-% TODO: Change to current_month month_title date_title current_date
+# TODO: Change to current_month month_title date_title current_date
 
 printf 'Current month is %s, i.e., %s.\n' "$current_month" "$month_title"
 printf 'Current date: %s.\n' "$current_date"
