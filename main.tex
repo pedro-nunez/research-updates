@@ -15,6 +15,7 @@
 % General packages
 \usepackage{enumitem}
 \usepackage{titlesec}
+\usepackage[skip=0.4\baselineskip]{parskip}
 
 % Figures
 \usepackage{graphicx}
@@ -23,7 +24,6 @@
 % Diagrams
 \usepackage{tikz-cd}
 \usetikzlibrary{decorations.markings}
-\usepackage{pgfornament}
 
 % Bibliography
 \usepackage[
@@ -66,12 +66,11 @@
 \newtheorem{conjecture}[theorem]{Conjecture}
 \newtheorem{exercise}[theorem]{Exercise}
 \newtheorem{setting}[theorem]{Setting}
-
-\theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 \newtheorem{notation}[theorem]{Notation}
 \newtheorem{example}[theorem]{Example}
 \newtheorem{question}[theorem]{Question}
+\newtheorem*{goal}{Goal}
 
 % Alphabetic theorem items with ordinary enumerate indentation
 % Printed labels: (a), (b), ...; references: 1(a), 1(b), ...
@@ -181,14 +180,18 @@
 \newcommand{\dayentry}[1]{%
     \section*{\color{DateColor}#1}%
 }
+\makeatletter
 \newcommand{\ptag}[1]{%
-    \vspace{1mm}%
-    \noindent\textbf{\small[\uppercase{#1}]}%
-    \AddToHookNext{para/begin}{\OmitIndent}%
+    \if@nobreak\else
+        \vspace{3mm}%
+    \fi
+    \fbox{\textbf{\small\uppercase{#1}}}%
 }
-\newcommand{\newtopic}{%
+\makeatother
+\newcommand{\astbreak}{%
+    \par\vspace{2mm}%
     \begin{center}
-        \pgfornament[width=0.3\linewidth]{82}
+        \(\ast\quad\ast\quad\ast\)
     \end{center}%
 }
 
@@ -215,6 +218,11 @@
 \hypersetup{pdftitle={\@title}, pdfauthor={\@author}}
 \makeatother
 
+% arXiv macro
+\newcommand{\arxiv}[1]{%
+    \href{https://arxiv.org/abs/#1}{arXiv:#1}%
+}
+
 % Custom mathematical macros
 % Example: \newcommand{\N}{\mathbb{N}}
 % Example: \DeclareMathOperator{\Hom}{Hom}
@@ -230,11 +238,11 @@
 
 % Projects information page
 \thispagestyle{empty}
-\noindent\textbf{Current projects}
+\textbf{List of project tags}
 \begin{itemize}
-    \item \ptag{p1}:~[Brief description of first project]
-    \item \ptag{p2}:~[Brief description of second project]
-    \item \ptag{p3}:~[Brief description of third project]
+    \item \ptag{p1} Brief description of first project.
+    \item \ptag{p2} Brief description of second project.
+    \item \ptag{p3} Brief description of third project.
 \end{itemize}
 \vfill
 \printauthorinfo
