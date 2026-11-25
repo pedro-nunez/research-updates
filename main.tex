@@ -37,6 +37,12 @@
 \usepackage{xcolor}
 \definecolor{CustomBlue}{RGB}{51,51,153}
 \definecolor{DateColor}{RGB}{0,128,128}
+\definecolor{IdeaBlue}{RGB}{0,105,230}
+\definecolor{ConclusionGreen}{RGB}{0,180,40}
+\definecolor{ProblemAmber}{RGB}{255,220,0}
+\definecolor{ConclusionRed}{RGB}{240,20,30}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable}
 
 % References and links
 \usepackage{hyperref}
@@ -222,6 +228,47 @@
 \newcommand{\arxiv}[1]{%
     \href{https://arxiv.org/abs/#1}{arXiv:#1}%
 }
+
+% Recall environment
+\newtcolorbox{recall}{
+    breakable,
+    colback=black!4,
+    colframe=black!25,
+    boxrule=0pt,
+    leftrule=1.5pt,
+    sharp corners,
+    boxsep=0pt,
+    left=10pt,
+    right=10pt,
+    top=7pt,
+    bottom=7pt,
+    before skip=10pt,
+    after skip=10pt
+}
+
+% Text boxes
+\tcbset{
+    research box/.style={
+        breakable,
+        width=0.90\linewidth,
+        center,
+        colback=#1!8!white,
+        colframe=#1!65!white,
+        boxrule=0.6pt,
+        arc=2mm,
+        boxsep=0pt,
+        left=10pt,
+        right=10pt,
+        top=7pt,
+        bottom=7pt,
+        before skip=10pt,
+        after skip=10pt
+    }
+}
+\newtcolorbox{blueidea}{research box=IdeaBlue}
+\newtcolorbox{greenconclusion}{research box=ConclusionGreen}
+\newtcolorbox{yellowproblem}{research box=ProblemAmber}
+\newtcolorbox{redconclusion}{research box=ConclusionRed}
 
 % Custom mathematical macros
 % Example: \newcommand{\N}{\mathbb{N}}
